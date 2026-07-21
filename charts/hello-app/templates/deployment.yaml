@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "hello-app.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "hello-app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "hello-app.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "hello-app.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          env:
+            - name: APP_MESSAGE
+              value: {{ .Values.env.message | quote }}
+            - name: APP_VERSION
+              value: {{ .Chart.AppVersion | quote }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

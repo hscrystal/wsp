@@ -1,0 +1,20 @@
+# Override เฉพาะค่าที่ต่างจาก values.yaml สำหรับ prod
+replicaCount: 3
+
+image:
+  tag: "1.0.0"
+
+env:
+  message: "Hello from PRODUCTION"
+
+ingress:
+  enabled: true
+  host: hello-app.example.com
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi

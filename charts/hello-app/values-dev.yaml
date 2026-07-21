@@ -1,0 +1,12 @@
+# Override เฉพาะค่าที่ต่างจาก values.yaml สำหรับ dev
+replicaCount: 1
+
+image:
+  tag: "dev-latest"
+
+env:
+  message: "Hello from DEV"
+
+ingress:
+  enabled: true
+  host: hello-app.dev.local
