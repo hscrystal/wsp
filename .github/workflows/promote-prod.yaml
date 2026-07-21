@@ -6,12 +6,18 @@ on:
   push:
     tags:
       - "v*.*.*"
+  workflow_dispatch:      # กดรันมือจากแท็บ Actions ได้ ต้องระบุ version เอง (push ด้วย tag ไม่มี input นี้)
+    inputs:
+      version:
+        description: "Version tag เช่น v1.2.3 (ใช้แทน git tag ตอนกดรันมือ)"
+        required: true
 
 permissions:
   contents: write
 
 env:
   IMAGE_NAME: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/hello-app
+  VERSION: ${{ github.event.inputs.version || github.ref_name }}
 
 jobs:
   build-image:
@@ -27,17 +33,17 @@ jobs:
           push: false
           load: true
           tags: |
-            ${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+            ${{ env.IMAGE_NAME }}:${{ env.VERSION }}
 
       - name: Save image เป็น tarball
         run: |
-          docker save ${{ env.IMAGE_NAME }}:${{ github.ref_name }} \
+          docker save ${{ env.IMAGE_NAME }}:${{ env.VERSION }} \
             -o image.tar
 
       - name: Upload image artifact
         uses: actions/upload-artifact@v4
         with:
-          name: image-${{ github.ref_name }}
+          name: image-${{ env.VERSION }}
           path: image.tar
           retention-days: 1
 
@@ -48,7 +54,7 @@ jobs:
       - name: Download image artifact
         uses: actions/download-artifact@v4
         with:
-          name: image-${{ github.ref_name }}
+          name: image-${{ env.VERSION }}
 
       - name: Load image เข้า Docker daemon
         run: docker load -i image.tar
@@ -56,7 +62,7 @@ jobs:
       - name: สแกนช่องโหว่ด้วย Trivy
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+          image-ref: ${{ env.IMAGE_NAME }}:${{ env.VERSION }}
           format: table
           severity: CRITICAL,HIGH
           exit-code: "1"     # prod เข้มกว่า dev: เจอช่องโหว่แล้วห้ามโปรโมทเด็ดขาด
@@ -68,7 +74,7 @@ jobs:
       - name: Download image artifact
         uses: actions/download-artifact@v4
         with:
-          name: image-${{ github.ref_name }}
+          name: image-${{ env.VERSION }}
 
       - name: Load image เข้า Docker daemon
         run: docker load -i image.tar
@@ -81,7 +87,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Push image (ผ่านสแกนแล้วเท่านั้น)
-        run: docker push ${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+        run: docker push ${{ env.IMAGE_NAME }}:${{ env.VERSION }}
 
   update-prod-values:
     needs: push-image
@@ -94,7 +100,7 @@ jobs:
 
       - name: Bump image.tag ใน values-prod.yaml
         run: |
-          sed -i "s|tag: \".*\"|tag: \"${{ github.ref_name }}\"|" \
+          sed -i "s|tag: \".*\"|tag: \"${{ env.VERSION }}\"|" \
             charts/hello-app/values-prod.yaml
 
       - name: Commit & push
@@ -103,5 +109,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add charts/hello-app/values-prod.yaml
           git diff --cached --quiet && exit 0
-          git commit -m "chore(prod): promote image to ${{ github.ref_name }} [skip ci]"
+          git commit -m "chore(prod): promote image to ${{ env.VERSION }} [skip ci]"
           git push
