@@ -30,13 +30,25 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build & push image
+      - name: Build image (local, ยังไม่ push)
         uses: docker/build-push-action@v5
         with:
           context: app
-          push: true
+          push: false
+          load: true
           tags: |
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/hello-app:dev-${{ steps.vars.outputs.sha_short }}
+
+      - name: สแกนช่องโหว่ด้วย Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/hello-app:dev-${{ steps.vars.outputs.sha_short }}
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: "1"     # เจอช่องโหว่ระดับ CRITICAL/HIGH -> fail job ทันที ไม่ไปต่อ
+
+      - name: Push image (ผ่านสแกนแล้วเท่านั้น)
+        run: docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/hello-app:dev-${{ steps.vars.outputs.sha_short }}
 
   update-dev-values:
     needs: build-and-push
