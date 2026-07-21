@@ -5,7 +5,7 @@ image:
   tag: "dev-02d9591"
 
 env:
-  message: "Hello from DEV!"
+  message: "Hello from DEV"
 
 ingress:
   enabled: true
