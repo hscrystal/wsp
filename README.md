@@ -65,6 +65,7 @@ helm template hello-app charts/hello-app -f charts/hello-app/values.yaml -f char
 - ArgoCD (`automated` sync บน `hello-app-dev`) เห็น Git เปลี่ยนก็ sync ให้เองภายในไม่กี่วินาที — **Actions ไม่เคยยิงเข้า cluster ตรงๆ**, มันแค่แก้ Git แล้วปล่อยให้ ArgoCD ทำงานตามหน้าที่
 - Prod แยกออกมาโดยเจตนา: [promote-prod.yaml](.github/workflows/promote-prod.yaml) trigger เฉพาะตอน push git tag รูปแบบ `v*.*.*` (เช่น `git tag v1.0.0 && git push --tags`) ไม่ trigger ทุก commit เหมือน dev — ป้องกันของที่ยังไม่ผ่านการ review ไหลเข้า prod เอง
 - commit message ของ bot มี `[skip ci]` กันไม่ให้เกิด infinite loop (bot commit values file → trigger workflow ตัวเอง → commit อีก → ...)
+- ทั้งสอง workflow แทรก **vulnerability scanning** ไว้ก่อน push image จริง: build image เก็บไว้ local (`push: false, load: true`) → scan ด้วย [Trivy](https://github.com/aquasecurity/trivy-action) หา CVE ระดับ `CRITICAL`/`HIGH` → ถ้าเจอ job จะ fail ทันที (`exit-code: 1`) ไม่ไปต่อขั้นตอน push/bump values เลย — กันไม่ให้ image ที่มีช่องโหว่รั่วเข้า registry หรือ deploy ไปที่ cluster
 - **ก่อนใช้งานจริงต้องตั้งค่า**:
   1. สร้าง [Docker Hub Access Token](https://hub.docker.com/settings/security) แล้วเพิ่มเป็น GitHub Secrets ที่ Settings → Secrets and variables → Actions:
      - `DOCKERHUB_USERNAME` — username Docker Hub ของคุณ
