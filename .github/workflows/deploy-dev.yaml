@@ -7,6 +7,7 @@ on:
     paths:
       - "app/**"
       - "charts/hello-app/**"
+  workflow_dispatch: {}   # กดรันมือจากแท็บ Actions ได้ (ไม่ต้องรอ push)
 
 permissions:
   contents: write   # ต้องเขียนกลับเข้า repo (commit values-dev.yaml)
