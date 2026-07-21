@@ -1,4 +1,4 @@
-FROM node:20.23.0-alpine3.21
+FROM node:alpine3.24
 WORKDIR /app
 COPY index.js .
 EXPOSE 8080
