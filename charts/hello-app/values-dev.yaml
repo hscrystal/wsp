@@ -9,4 +9,6 @@ env:
 
 ingress:
   enabled: true
+  # ค่านี้จะถูก CI เขียนทับจาก GitHub Actions Variable "INGRESS_HOST_DEV"
+  # ทุกครั้งที่ deploy-dev.yaml รัน (ดู .github/workflows/deploy-dev.yaml)
   host: hello-app.dev.local

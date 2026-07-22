@@ -103,6 +103,12 @@ jobs:
           sed -i "s|tag: \".*\"|tag: \"${{ env.VERSION }}\"|" \
             charts/hello-app/values-prod.yaml
 
+      - name: Bump ingress.host ใน values-prod.yaml (จาก GitHub Actions Variable)
+        if: vars.INGRESS_HOST_PROD != ''
+        run: |
+          sed -i "s|host: .*|host: ${{ vars.INGRESS_HOST_PROD }}|" \
+            charts/hello-app/values-prod.yaml
+
       - name: Commit & push
         run: |
           git config user.name "github-actions[bot]"

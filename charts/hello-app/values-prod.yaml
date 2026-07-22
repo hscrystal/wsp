@@ -9,6 +9,8 @@ env:
 
 ingress:
   enabled: true
+  # ค่านี้จะถูก CI เขียนทับจาก GitHub Actions Variable "INGRESS_HOST_PROD"
+  # ทุกครั้งที่ promote-prod.yaml รัน (ดู .github/workflows/promote-prod.yaml)
   host: hello-app.example.com
 
 resources:
