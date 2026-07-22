@@ -2,7 +2,7 @@
 replicaCount: 3
 
 image:
-  tag: "1.0.0"
+  tag: "v1.0.0"
 
 env:
   message: "Hello from PRODUCTION"
