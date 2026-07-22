@@ -19,6 +19,13 @@ service:
 ingress:
   enabled: false
   host: hello-app.local
+  # external-dns + Cloudflare Tunnel — tunnel เดียวกันใช้ร่วมกันทุก environment
+  # target นี้จะถูก CI เขียนทับจาก GitHub Actions Variable "CLOUDFLARE_TUNNEL_TARGET"
+  # ทุกครั้งที่ deploy-dev.yaml หรือ promote-prod.yaml รัน
+  externalDns:
+    enabled: false
+    cloudflareProxied: true
+    target: "placeholder.cfargotunnel.com"
 
 resources:
   requests:

@@ -82,7 +82,8 @@ helm template hello-app charts/hello-app -f charts/hello-app/values.yaml -f char
   5. (ไม่บังคับ) ตั้ง **GitHub Actions Variables** ที่ Settings → Secrets and variables → Actions → แท็บ **Variables** (ไม่ใช่ Secrets เพราะ host ไม่ใช่ข้อมูลลับ) เพื่อไม่ต้อง hardcode domain ไว้ในโค้ด:
      - `INGRESS_HOST_DEV` — เช่น `hello-app.dev.local`
      - `INGRESS_HOST_PROD` — เช่น `hello-app.example.com`
-     - ถ้าไม่ตั้งไว้ workflow จะข้าม step นี้ (`if: vars.INGRESS_HOST_DEV != ''`) แล้วใช้ค่าที่เขียนไว้ใน `values-dev.yaml`/`values-prod.yaml` เดิมแทน — ตั้งไว้ทีหลังได้ ไม่ต้องแก้โค้ด
+     - `CLOUDFLARE_TUNNEL_TARGET` — เช่น `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.cfargotunnel.com` (ตัวเดียวใช้ร่วมกันทั้ง dev/prod เพราะ tunnel เดียวกัน, bump เข้า `values.yaml` แทนที่จะเป็นไฟล์ per-env)
+     - ถ้าไม่ตั้งไว้ workflow จะข้าม step นั้นๆ (`if: vars.XXX != ''`) แล้วใช้ค่าที่เขียนไว้ในไฟล์เดิมแทน — ตั้งไว้ทีหลังได้ ไม่ต้องแก้โค้ด
 
 ## วิธีลองเล่นแบบไม่ต้องมี cluster จริง
 

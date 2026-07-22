@@ -6,6 +6,12 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "hello-app.labels" . | nindent 4 }}
+  {{- if .Values.ingress.externalDns.enabled }}
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.ingress.host }}
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: {{ .Values.ingress.externalDns.cloudflareProxied | quote }}
+    external-dns.alpha.kubernetes.io/target: {{ .Values.ingress.externalDns.target }}
+  {{- end }}
 spec:
   rules:
     - host: {{ .Values.ingress.host }}
