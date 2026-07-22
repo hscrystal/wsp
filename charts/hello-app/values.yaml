@@ -25,7 +25,7 @@ ingress:
   externalDns:
     enabled: false
     cloudflareProxied: true
-    target: "placeholder.cfargotunnel.com"
+    target: "14f74df8-fb87-4275-9e2b-4b0412aa773c.cfargotunnel.com"
 
 resources:
   requests:
