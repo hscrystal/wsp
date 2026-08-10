@@ -105,23 +105,11 @@ jobs:
           sed -i "s|tag: \".*\"|tag: \"dev-${{ needs.build-image.outputs.image_tag }}\"|" \
             charts/hello-app/values-dev.yaml
 
-      - name: Bump ingress.host ใน values-dev.yaml (จาก GitHub Actions Variable)
-        if: vars.INGRESS_HOST_DEV != ''
-        run: |
-          sed -i "s|host: .*|host: ${{ vars.INGRESS_HOST_DEV }}|" \
-            charts/hello-app/values-dev.yaml
-
-      - name: Bump externalDns.target ใน values.yaml (จาก GitHub Actions Variable)
-        if: vars.CLOUDFLARE_TUNNEL_TARGET != ''
-        run: |
-          sed -i "s|target: .*|target: \"${{ vars.CLOUDFLARE_TUNNEL_TARGET }}\"|" \
-            charts/hello-app/values.yaml
-
       - name: Commit & push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add charts/hello-app/values-dev.yaml charts/hello-app/values.yaml
+          git add charts/hello-app/values-dev.yaml
           git diff --cached --quiet && exit 0
           git commit -m "chore(dev): bump image tag to dev-${{ needs.build-image.outputs.image_tag }} [skip ci]"
           git push

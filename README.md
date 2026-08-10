@@ -71,7 +71,7 @@ helm template hello-app charts/hello-app -f charts/hello-app/values.yaml -f char
   3. `push-image` — โหลด image จาก artifact อีกครั้ง, login Docker Hub, แล้ว push (`needs: scan-image` การันตีว่าผ่านสแกนแล้วเท่านั้นถึงจะรันได้)
   4. `update-dev-values` / `update-prod-values` — `needs: push-image` แก้ values file แล้ว commit กลับ
   - แยกเป็นคนละ job ทำให้เห็น **"Vulnerability Scan" เป็น status check แยกต่างหาก** ใน GitHub UI ได้ (ตั้งเป็น required check ได้ในอนาคต) แลกกับเวลาที่เพิ่มขึ้นเล็กน้อยจากการ upload/download image tarball ข้าม job
-- ทั้งสอง workflow ยังมี step เสริม **bump ingress host จาก GitHub Actions Variable** (`vars.INGRESS_HOST_DEV` / `vars.INGRESS_HOST_PROD`) แทนที่จะ hardcode domain ไว้ในไฟล์ values ตั้งแต่ต้น — เปลี่ยน domain ทีหลังได้จาก Settings โดยไม่ต้องแก้โค้ดเลย (ดูขั้นตอนตั้งค่าใน 5. ด้านล่าง)
+- `ingress.host` และ `externalDns.target` เป็นค่า **static เก็บตรงในไฟล์ values** (`values.yaml`/`values-dev.yaml`/`values-prod.yaml`) ไม่ได้ผ่าน GitHub Actions Variable — แก้ทีหลังต้องแก้ไฟล์แล้ว commit ตรงๆ (เคยลองใช้ GitHub Variable มาก่อน แต่ค่าก็ยังต้องถูก CI bump เข้า git อยู่ดีเพราะ ArgoCD อ่านค่าจาก Git เสมอ เลยตัดสินใจง่ายกว่าให้เก็บตรงในไฟล์ไปเลย)
 - **ก่อนใช้งานจริงต้องตั้งค่า**:
   1. สร้าง [Docker Hub Access Token](https://hub.docker.com/settings/security) แล้วเพิ่มเป็น GitHub Secrets ที่ Settings → Secrets and variables → Actions:
      - `DOCKERHUB_USERNAME` — username Docker Hub ของคุณ
@@ -79,11 +79,7 @@ helm template hello-app charts/hello-app -f charts/hello-app/values.yaml -f char
   2. Settings → Actions → General → Workflow permissions → เลือก **Read and write permissions** (ให้ `GITHUB_TOKEN` push commit กลับเข้า repo ได้ — เฉพาะขั้นตอน commit values file เท่านั้น ไม่เกี่ยวกับ Docker Hub)
   3. ถ้า branch `main` มี branch protection ต้อง allow bot/Action push ได้ (หรือใช้ PAT แทน `GITHUB_TOKEN` ถ้าต้องผ่าน required review)
   4. แก้ `repoURL` ใน `argocd/application-*.yaml` ให้ตรงกับ GitHub repo จริง และแก้ `image.repository` ใน `values.yaml` เป็น `docker.io/<dockerhub-username>/hello-app`
-  5. (ไม่บังคับ) ตั้ง **GitHub Actions Variables** ที่ Settings → Secrets and variables → Actions → แท็บ **Variables** (ไม่ใช่ Secrets เพราะ host ไม่ใช่ข้อมูลลับ) เพื่อไม่ต้อง hardcode domain ไว้ในโค้ด:
-     - `INGRESS_HOST_DEV` — เช่น `hello-app.dev.local`
-     - `INGRESS_HOST_PROD` — เช่น `hello-app.example.com`
-     - `CLOUDFLARE_TUNNEL_TARGET` — เช่น `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.cfargotunnel.com` (ตัวเดียวใช้ร่วมกันทั้ง dev/prod เพราะ tunnel เดียวกัน, bump เข้า `values.yaml` แทนที่จะเป็นไฟล์ per-env)
-     - ถ้าไม่ตั้งไว้ workflow จะข้าม step นั้นๆ (`if: vars.XXX != ''`) แล้วใช้ค่าที่เขียนไว้ในไฟล์เดิมแทน — ตั้งไว้ทีหลังได้ ไม่ต้องแก้โค้ด
+  5. แก้ `ingress.host` (`values-dev.yaml`/`values-prod.yaml`) และ `ingress.externalDns.target` (`values.yaml`) ให้ตรงกับ domain/tunnel จริงของคุณ
 
 ## วิธีลองเล่นแบบไม่ต้องมี cluster จริง
 
