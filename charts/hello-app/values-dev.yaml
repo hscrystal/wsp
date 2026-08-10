@@ -2,7 +2,7 @@
 replicaCount: 1
 
 image:
-  tag: "dev-08655cb"
+  tag: "dev-49c7240"
 
 env:
   message: "Hello from DEV!!"
