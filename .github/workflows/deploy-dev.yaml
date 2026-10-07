@@ -100,16 +100,43 @@ jobs:
         with:
           ref: main
 
-      - name: Bump image.tag ใน values-dev.yaml
+      - name: Bump image.tag ใน values-dev.yaml แล้ว commit กลับ
+        env:
+          NEW_TAG: dev-${{ needs.build-image.outputs.image_tag }}
         run: |
-          sed -i "s|tag: \".*\"|tag: \"dev-${{ needs.build-image.outputs.image_tag }}\"|" \
-            charts/hello-app/values-dev.yaml
-
-      - name: Commit & push
-        run: |
+          set -uo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add charts/hello-app/values-dev.yaml
-          git diff --cached --quiet && exit 0
-          git commit -m "chore(dev): bump image tag to dev-${{ needs.build-image.outputs.image_tag }} [skip ci]"
-          git push
+
+          # ทุกรอบเริ่มจาก reset ไป origin/main ล่าสุดก่อนแก้ค่า แล้วค่อย commit ใหม่
+          # ถ้ามี commit อื่นแทรกเข้า main ระหว่าง job นี้รัน push จะถูกปฏิเสธแล้ววนลองใหม่
+          # (ไม่ใช้ rebase เพราะ reset+แก้ใหม่ไม่มีทางเกิด conflict ให้ค้าง)
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main || exit 1
+            git reset --hard FETCH_HEAD || exit 1
+
+            sed -i "s|tag: \".*\"|tag: \"$NEW_TAG\"|" charts/hello-app/values-dev.yaml
+
+            # กัน sed แก้ไม่ติด (ไฟล์เปลี่ยนรูปแบบ/path ย้าย) แล้ว job รายงานสำเร็จแบบเงียบๆ
+            if ! grep -q "tag: \"$NEW_TAG\"" charts/hello-app/values-dev.yaml; then
+              echo "::error::แก้ image.tag ไม่สำเร็จ — ไม่พบ tag: \"$NEW_TAG\" ใน values-dev.yaml หลังรัน sed"
+              exit 1
+            fi
+
+            git add charts/hello-app/values-dev.yaml
+            if git diff --cached --quiet; then
+              echo "values-dev.yaml ชี้ $NEW_TAG อยู่แล้ว — ไม่ต้อง commit"
+              exit 0
+            fi
+
+            git commit -m "chore(dev): bump image tag to $NEW_TAG [skip ci]" || exit 1
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+
+            echo "push ครั้งที่ $attempt ถูกปฏิเสธ (น่าจะมี commit ใหม่เข้า main) — ลองใหม่"
+            sleep $((attempt * 3))
+          done
+
+          echo "::error::push ไม่สำเร็จหลังลอง 5 ครั้ง — image $NEW_TAG ขึ้น Docker Hub แล้วแต่ values-dev.yaml ยังไม่ถูก bump (ArgoCD จะยังไม่ deploy)"
+          exit 1
