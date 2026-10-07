@@ -132,7 +132,9 @@ jobs:
               exit 0
             fi
 
-            git commit -m "chore(dev): bump image tag to $NEW_TAG [skip ci]" || exit 1
+            # ไม่ใส่ [skip ci]: commit ที่ push ด้วย GITHUB_TOKEN ไม่ trigger workflow อยู่แล้ว จึงไม่เกิด loop
+            # และถ้าใส่ git tag ที่ชี้มา commit นี้จะไม่ trigger promote-prod
+            git commit -m "chore(dev): bump image tag to $NEW_TAG" || exit 1
             if git push origin HEAD:main; then
               exit 0
             fi
