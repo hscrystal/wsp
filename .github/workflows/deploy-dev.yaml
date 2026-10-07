@@ -115,10 +115,13 @@ jobs:
             git fetch origin main || exit 1
             git reset --hard FETCH_HEAD || exit 1
 
-            sed -i "s|tag: \".*\"|tag: \"$NEW_TAG\"|" charts/hello-app/values-dev.yaml
+            # แก้เฉพาะ tag ที่อยู่ใต้ block image: เท่านั้น (ตั้งแต่บรรทัด image: ถึง key ระดับบนสุดตัวถัดไป)
+            # key ชื่อ tag: ใน block อื่นจะไม่ถูกแตะ
+            sed -i "/^image:/,/^[^ #]/ s|^  tag: .*|  tag: \"$NEW_TAG\"|" charts/hello-app/values-dev.yaml
 
             # กัน sed แก้ไม่ติด (ไฟล์เปลี่ยนรูปแบบ/path ย้าย) แล้ว job รายงานสำเร็จแบบเงียบๆ
-            if ! grep -q "tag: \"$NEW_TAG\"" charts/hello-app/values-dev.yaml; then
+            current_tag=$(sed -n '/^image:/,/^[^ #]/ s|^  tag: "\(.*\)"$|\1|p' charts/hello-app/values-dev.yaml)
+            if [ "$current_tag" != "$NEW_TAG" ]; then
               echo "::error::แก้ image.tag ไม่สำเร็จ — ไม่พบ tag: \"$NEW_TAG\" ใน values-dev.yaml หลังรัน sed"
               exit 1
             fi
