@@ -5,6 +5,7 @@ image:
   tag: "dev-7c67a16"
 
 env:
+  name: "dev"
   message: "Hello from DEV!!"
 
 ingress:

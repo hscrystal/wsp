@@ -9,6 +9,7 @@ image:
   pullPolicy: IfNotPresent
 
 env:
+  name: "local"   # ชื่อ environment ที่แสดงบนหน้าเว็บ (กำหนดสีของหน้าด้วย)
   message: "Hello from base values"
 
 service:

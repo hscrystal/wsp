@@ -9,7 +9,7 @@
 │   └── workflows/
 │       ├── deploy-dev.yaml     # push -> main: build image + bump values-dev.yaml
 │       └── promote-prod.yaml   # push tag v*: build image + bump values-prod.yaml
-├── app/                        # แอปตัวอย่าง (Node.js, ตอบ JSON)
+├── app/                        # แอปตัวอย่าง (Node.js, หน้าเว็บที่ / และ JSON ที่ /api/info)
 │   ├── index.js
 │   └── Dockerfile
 ├── charts/
