@@ -21,13 +21,13 @@ env:
 
 jobs:
   build-image:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Build image (local, ยังไม่ push)
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: app
           push: false
@@ -41,7 +41,7 @@ jobs:
             -o image.tar
 
       - name: Upload image artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: image-${{ env.VERSION }}
           path: image.tar
@@ -49,10 +49,10 @@ jobs:
 
   scan-image:
     needs: build-image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Download image artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: image-${{ env.VERSION }}
 
@@ -69,10 +69,10 @@ jobs:
 
   push-image:
     needs: [build-image, scan-image]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Download image artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: image-${{ env.VERSION }}
 
@@ -80,7 +80,7 @@ jobs:
         run: docker load -i image.tar
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: docker.io
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -91,10 +91,10 @@ jobs:
 
   update-prod-values:
     needs: push-image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: main
 
