@@ -5,6 +5,7 @@ image:
   tag: "v1.0.1"
 
 env:
+  name: "production"
   message: "Hello from PRODUCTION"
 
 ingress:
