@@ -70,6 +70,9 @@ jobs:
   push-image:
     needs: [build-image, scan-image]
     runs-on: ubuntu-24.04
+    # ด่านอนุมัติก่อนขึ้น prod: environment "production" ตั้ง required reviewer ไว้ใน repo Settings
+    # job นี้จะหยุดรอจนมีคนกด Approve — ยังไม่ push image และ update-prod-values (needs job นี้) ก็ยังไม่รัน
+    environment: production
     steps:
       - name: Download image artifact
         uses: actions/download-artifact@v8
