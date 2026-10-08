@@ -2,7 +2,7 @@
 replicaCount: 3
 
 image:
-  tag: "v2.0.1"
+  tag: "v2.0.2"
 
 env:
   name: "production"
