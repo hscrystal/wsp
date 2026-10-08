@@ -4,6 +4,7 @@ const os = require('os');
 const message = process.env.APP_MESSAGE || 'Hello from gitops-demo!';
 const version = process.env.APP_VERSION || 'v1';
 const environment = process.env.APP_ENV || 'local';
+const credit = process.env.APP_CREDIT || '';
 const pod = os.hostname();
 const startedAt = Date.now();
 
@@ -101,7 +102,8 @@ const page = () => {
   ol li span { padding: 5px 10px; border-radius: 8px; background: var(--chip); border: 1px solid var(--line); white-space: nowrap; }
   ol li:last-child span { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--a1), var(--a2)); }
   ol li + li::before { content: "→"; opacity: .6; }
-  footer { margin-top: 22px; font-size: 13px; color: var(--muted); }
+  footer { margin-top: 22px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; }
+  footer b { color: var(--text); font-weight: 600; }
   footer a { color: inherit; }
   @media (prefers-reduced-motion: reduce) { .env i { animation: none; } }
 </style>
@@ -125,7 +127,10 @@ const page = () => {
 
   <ol>${steps.map((s) => `<li><span>${s}</span></li>`).join('')}</ol>
 
-  <footer>ข้อมูลแบบ JSON: <a href="/api/info">/api/info</a></footer>
+  <footer>
+    <span>ข้อมูลแบบ JSON: <a href="/api/info">/api/info</a></span>
+    ${credit ? `<span>Credit by <b>${escapeHtml(credit)}</b></span>` : ''}
+  </footer>
 </main>
 <script>
   // นับ uptime ต่อฝั่ง browser จากค่าที่ server ส่งมาตอนโหลดหน้า

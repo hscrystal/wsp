@@ -11,6 +11,7 @@ image:
 env:
   name: "local"   # ชื่อ environment ที่แสดงบนหน้าเว็บ (กำหนดสีของหน้าด้วย)
   message: "Hello from base values"
+  credit: "hscrystal"   # ชื่อที่แสดงหลัง "Credit by" ท้ายหน้าเว็บ (เว้นว่าง = ไม่แสดง)
 
 service:
   type: ClusterIP
