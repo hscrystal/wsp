@@ -8,9 +8,13 @@ metadata:
     {{- include "hello-app.labels" . | nindent 4 }}
   {{- if .Values.ingress.externalDns.enabled }}
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: {{ .Values.ingress.host }}
-    external-dns.alpha.kubernetes.io/cloudflare-proxied: {{ .Values.ingress.externalDns.cloudflareProxied | quote }}
-    external-dns.alpha.kubernetes.io/target: {{ .Values.ingress.externalDns.target }}
+    # Both prefixes on purpose: external-dns >= v0.23 reads only external-dns.kubernetes.io/ unless
+    # --enable-legacy-annotation-prefix is set. Drop the alpha ones once every app has migrated.
+    {{- range $prefix := list "external-dns.kubernetes.io" "external-dns.alpha.kubernetes.io" }}
+    {{ $prefix }}/hostname: {{ $.Values.ingress.host }}
+    {{ $prefix }}/cloudflare-proxied: {{ $.Values.ingress.externalDns.cloudflareProxied | quote }}
+    {{ $prefix }}/target: {{ $.Values.ingress.externalDns.target }}
+    {{- end }}
   {{- end }}
 spec:
   rules:
