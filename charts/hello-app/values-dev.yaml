@@ -2,7 +2,7 @@
 replicaCount: 1
 
 image:
-  tag: "dev-9df5f1d"
+  tag: "dev-9380a57"
 
 env:
   name: "dev"
