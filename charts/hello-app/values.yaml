@@ -20,6 +20,8 @@ service:
 
 ingress:
   enabled: false
+  # IngressClass ของ ingress controller ใน cluster (Traefik); เว้นว่าง = ใช้ default class
+  className: traefik
   host: hello-app.local
   # external-dns + Cloudflare Tunnel — tunnel เดียวกันใช้ร่วมกันทุก environment
   externalDns:
