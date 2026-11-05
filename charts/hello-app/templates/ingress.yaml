@@ -13,6 +13,9 @@ metadata:
     external-dns.kubernetes.io/target: {{ .Values.ingress.externalDns.target }}
   {{- end }}
 spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
   rules:
     - host: {{ .Values.ingress.host }}
       http:
